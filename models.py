@@ -14,8 +14,20 @@ posts = Table('posts', metadata,
               Column('user_id', Integer, ForeignKey("users.id"), nullable=False),
               Column('title', String(250)),
               Column('description', String(1000)),
-              Column('tags', String(250)),
               Column('created_at', DateTime),
               Column('updated_at', DateTime),
               )
 
+tags = Table('tags', metadata,
+             Column('id', Integer, primary_key=True),
+             Column('post_id', Integer, ForeignKey("posts.id"), nullable=False),
+             Column('tag', String(250)),
+             )
+
+token = Table('token', metadata,
+              Column('id', Integer, primary_key=True),
+              Column('user_id', Integer, ForeignKey("users.id"), nullable=False),
+              Column('token', String(250)),
+              Column('created_at', DateTime),
+              Column('last_accessed_at', DateTime),
+              )

@@ -11,7 +11,8 @@ def is_logged_in(authorization):
     now = datetime.datetime.now()
     fifteen_minutes_back = now - datetime.timedelta(minutes=15)
     stmt = token.select()\
-        .where(token.c.token == authorization and token.c.last_accessed_at > fifteen_minutes_back)
+        .where(token.c.token == authorization)\
+        .where(token.c.last_accessed_at > fifteen_minutes_back)
     conn = engine.connect()
     result = conn.execute(stmt)
     conn.close()

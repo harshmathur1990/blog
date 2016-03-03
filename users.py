@@ -68,14 +68,6 @@ def get_users(user_id=None):
         conn.close()
         rows = result.fetchall()
         total = total_result.rowcount
-        l = [dict(r) for r in rows]
-        result_resp = {
-            'total': total,
-            'data': l
-        }
-        resp = jsonify(result_resp)
-        resp.status_code = 200
-        return resp
     else:
         stmt = select([users.c.id, users.c.username, users.c.created_at, users.c.updated_at])\
             .where(users.c.id == int(user_id))
@@ -84,17 +76,17 @@ def get_users(user_id=None):
         conn.close()
         rows = result.fetchall()
         total = result.rowcount
-        l = [dict(r) for r in rows]
-        result_resp = {
-            'total': total,
-            'data': l
-        }
-        resp = jsonify(result_resp)
-        resp.status_code = 200
-        return resp
+    l = [dict(r) for r in rows]
+    result_resp = {
+        'total': total,
+        'data': l
+    }
+    resp = jsonify(result_resp)
+    resp.status_code = 200
+    return resp
 
 
-@user_routes.route('/users/<user_id>', methods=['DELETE'])
+@user_routes.route('/users/<int:user_id>', methods=['DELETE'])
 @check_login
 def delete_users(user_id):
     if user_id != request.user.get('id'):
@@ -115,7 +107,7 @@ def delete_users(user_id):
     return resp
 
 
-@user_routes.route('/users/<user_id>', methods=['PUT'])
+@user_routes.route('/users/<int:user_id>', methods=['PUT'])
 @check_login
 def update_user(user_id):
     if user_id != request.user.get('id'):
@@ -160,7 +152,8 @@ def api_token():
         resp.status_code = 400
         return resp
     stmt = users.select()\
-        .where(users.c.username == data.get('username') and users.c.password == data.get('password'))
+        .where(users.c.username == data.get('username'))\
+        .where(users.c.password == data.get('password'))
     conn = engine.connect()
     result = conn.execute(stmt)
     conn.close()
@@ -170,7 +163,8 @@ def api_token():
         now = datetime.datetime.now()
         fifteen_minutes_back = now - datetime.timedelta(minutes=15)
         token_ext = token.select()\
-            .where(token.c.user_id == user_obj.get('id') and token.c.last_accessed_at > fifteen_minutes_back)
+            .where(token.c.user_id == user_obj.get('id'))\
+            .where(token.c.last_accessed_at > fifteen_minutes_back)
         conn = engine.connect()
         fetch_token_result = conn.execute(token_ext)
         conn.close()
